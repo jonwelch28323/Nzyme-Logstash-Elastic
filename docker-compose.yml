@@ -1,0 +1,36 @@
+services:
+  logstash01:
+    image: docker.elastic.co/logstash/logstash:${LOGSTASH_VERSION}
+    container_name: logstash01
+    hostname: logstash01
+    networks:
+      - ${DOCKER_NETWORK}
+    restart: always
+    labels:
+      co.elastic.logs/module: logstash
+    user: root
+    volumes:
+      - logstashdata01:/usr/share/logstash/data
+      - "./configs/postgresql-42.7.6.jar:/root/postgresql-42.7.6.jar:rwx"
+      - "./configs/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
+      - "./configs/logstash-entrypoint.sh:/usr/local/bin/logstash-entrypoint.sh:ro"
+    environment:
+      - xpack.monitoring.enabled=false
+      - ELASTIC_USER=${ELASTIC_USER}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=https://${ELASTIC_HOST}:${ELASTIC_PORT}
+      - ALLOW_SUPERUSER=true
+      - SSL_CERTIFICATE_VERIFICATION_MODE=false
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - DATABASE_NAME=${DATABASE_NAME}
+
+
+networks:
+  nzyme:
+    driver: bridge
+volumes:
+  logstashdata01:
+    driver: local
