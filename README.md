@@ -84,7 +84,7 @@ If your Elasticsearch uses a self-signed certificate, place your CA certificate 
 
 ### 5. Use the Management Script
 
-This project includes an interactive management script:  
+This project includes an enhanced interactive management script:  
 **`stage_ecs_nzyme.sh`**
 
 #### Make the script executable (Linux/macOS):
@@ -99,14 +99,37 @@ chmod +x stage_ecs_nzyme.sh
 ./stage_ecs_nzyme.sh
 ```
 
+> **Recommended Workflow:**  
+> 1. First run option 1 to test your connections to both Elasticsearch and PostgreSQL
+> 2. If connections are successful, run option 2 to set up the Elasticsearch infrastructure
+> 3. Use options 3-4 to stage and start your Logstash container
+> 4. Monitor with option 7 for container status
+
 #### Script Capabilities:
 
+The interactive management script provides a user-friendly menu organized into logical sections:
+
+**Setup & Configuration:**
+- **Test connection to Elasticsearch and PostgreSQL** with enhanced visual feedback
+  - Color-coded results (green ✓ for success, red ✗ for failure)
+  - Automatic pause to review results before continuing
+  - Uses credentials from `.env` file automatically (no manual password entry)
 - Setup/Update ILM, templates, and datastreams in Elasticsearch
-- Stage, start, stop, restart, and delete the Logstash container
+
+**Container Management:**
+- Stage Logstash container (pull/create but do not start)
+- Start Logstash container
+- Stop Logstash container  
+- Restart Logstash container
 - Show container status
-- **Test connection to Elasticsearch and PostgreSQL**
-- **Show environment variables inside the Logstash container after start/restart**
+- Show environment variables inside Logstash container
+- Delete Logstash container
+
+**Data Management:**
 - Delete all nzyme data streams and data from Elasticsearch
+
+> **Connection Testing Features:**  
+> The script now provides enhanced connection testing with color-coded output, clear visual separators, and automatic pausing so you can review the results. It automatically uses the database password from your `.env` file without prompting for manual entry.
 
 > **After starting the Logstash container, the script will automatically display the environment variables inside the container so you can verify that all credentials are passed correctly.**
 
@@ -192,11 +215,14 @@ nzyme_logstash/
 ## Troubleshooting
 
 - **Environment Variable Errors:**  
-  Ensure all required variables are set in `.env` and referenced in `docker-compose.yml`.
+  Ensure all required variables are set in `.env` and referenced in `docker-compose.yml`. The script automatically loads environment variables from the `.env` file.
+
+- **Connection Testing:**  
+  Use option 1 in the management script to test both Elasticsearch and PostgreSQL connections. The script will display color-coded results and pause for you to review them. Green checkmarks (✓) indicate success, red X marks (✗) indicate failures.
 
 - **Password Not Passed Correctly:**  
   If your password contains `$`, use `$$` in `.env`.  
-  Do **not** source `.env` in your shell before running the script.
+  Do **not** source `.env` in your shell before running the script. The script handles environment variable loading automatically.
 
 - **SSL Certificate Errors:**  
   Make sure the CA certificate is mounted and the path matches in your Logstash config.
@@ -205,7 +231,7 @@ nzyme_logstash/
   The entrypoint script will attempt to download the driver if missing. Ensure the container has internet access.
 
 - **Elasticsearch Connection Issues:**  
-  Check network connectivity and credentials.
+  Check network connectivity and credentials using the connection test feature in the management script.
 
 ---
 
