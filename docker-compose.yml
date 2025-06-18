@@ -13,7 +13,7 @@ services:
       - logstashdata01:/usr/share/logstash/data
       - "./configs/postgresql-42.7.6.jar:/root/postgresql-42.7.6.jar:rwx"
       - "./configs/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
-      - "./configs/logstash-entrypoint.sh:/usr/local/bin/logstash-entrypoint.sh:ro"
+
     environment:
       - xpack.monitoring.enabled=false
       - ELASTIC_USER=${ELASTIC_USER}

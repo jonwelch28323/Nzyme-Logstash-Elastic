@@ -1,6 +1,16 @@
-﻿# Nzyme logstash to Elastic
+﻿# Nzyme Logstash to Elastic
 
 This project provides a Dockerized Logstash pipeline for ingesting data from a PostgreSQL database (such as nzyme) and forwarding it to an Elasticsearch cluster. It is designed for easy deployment and configuration using Docker Compose and environment variables.
+
+---
+
+## ⚠️ Security Warning
+
+**This configuration is intended for lab, demo, or internal use only.**
+- Environment variables (including passwords) are stored in plaintext in `.env`.
+- The default PostgreSQL and Elasticsearch configurations may allow remote access.
+- No authentication or network restrictions are enforced by default.
+- Do not expose this setup to the public internet or use in production without additional security hardening.
 
 ---
 
@@ -11,6 +21,7 @@ This project provides a Dockerized Logstash pipeline for ingesting data from a P
 - Environment-based configuration for easy deployment
 - Automatic download of the PostgreSQL JDBC driver
 - Example pipeline configuration included
+- **Interactive management script** for setup, container lifecycle, connection testing, and environment variable inspection
 
 ---
 
@@ -52,30 +63,60 @@ DATABASE_HOST=your.db.host
 DATABASE_PORT=5432
 ```
 
-### 3. Configure Logstash Pipeline
+> **Note:**  
+> If your password contains a `$`, use `$$` in the `.env` file (e.g., `pa$$word` for `pa$word`).  
+> Do **not** quote or escape passwords in any other way.
+
+---
+
+### 3. (Optional) Configure Logstash Pipeline
 
 Edit `configs/logstash.conf` to customize the pipeline as needed.  
 By default, it pulls data from PostgreSQL and outputs to Elasticsearch.
+
+---
 
 ### 4. (Optional) Add SSL Certificates
 
 If your Elasticsearch uses a self-signed certificate, place your CA certificate in `certs/ca/ca.crt` and update the pipeline config accordingly.
 
-### 5. Start the Stack
+---
+
+### 5. Use the Management Script
+
+This project includes an interactive management script:  
+**`stage_ecs_nzyme.sh`**
+
+#### Make the script executable (Linux/macOS):
 
 ```sh
-docker compose up
+chmod +x stage_ecs_nzyme.sh
 ```
 
-Logstash will automatically download the PostgreSQL JDBC driver if it is not present.
+#### Run the script:
+
+```sh
+./stage_ecs_nzyme.sh
+```
+
+#### Script Capabilities:
+
+- Setup/Update ILM, templates, and datastreams in Elasticsearch
+- Stage, start, stop, restart, and delete the Logstash container
+- Show container status
+- **Test connection to Elasticsearch and PostgreSQL**
+- **Show environment variables inside the Logstash container after start/restart**
+- Delete all nzyme data streams and data from Elasticsearch
+
+> **After starting the Logstash container, the script will automatically display the environment variables inside the container so you can verify that all credentials are passed correctly.**
 
 ---
 
-## Allowing External Connections to nzyme's PostgreSQL Database
+### 6. Allowing External Connections to nzyme's PostgreSQL Database
 
 To allow Logstash (or any external service) to connect to the nzyme PostgreSQL database, you must configure PostgreSQL to accept external connections.
 
-### 1. Edit `postgresql.conf`
+#### a. Edit `postgresql.conf`
 
 Find and edit the `postgresql.conf` file (commonly located in `/etc/postgresql/<version>/main/` or `/var/lib/pgsql/data/`):
 
@@ -86,7 +127,7 @@ listen_addresses = '*'
 This allows PostgreSQL to listen on all network interfaces.  
 You can also specify a particular IP address if you prefer.
 
-### 2. Edit `pg_hba.conf`
+#### b. Edit `pg_hba.conf`
 
 Find and edit the `pg_hba.conf` file (in the same directory as `postgresql.conf`).  
 Add a line like this to allow password authentication from your network (replace `192.168.1.0/24` with your network or use `0.0.0.0/0` for all, but this is less secure):
@@ -102,7 +143,7 @@ host    nzyme    nzyme    192.168.1.0/24    md5
   ```
   (Not recommended for production without firewalling.)
 
-### 3. Restart PostgreSQL
+#### c. Restart PostgreSQL
 
 After making these changes, restart the PostgreSQL service:
 
@@ -121,7 +162,7 @@ sudo systemctl restart postgresql
 docker restart <postgres_container_name>
 ```
 
-### 4. Verify Connectivity
+#### d. Verify Connectivity
 
 From the Logstash container or host, test the connection:
 
@@ -142,6 +183,7 @@ nzyme_logstash/
 │   └── ca/ca.crt (optional, for SSL)
 ├── .env
 ├── docker-compose.yml
+├── stage_ecs_nzyme.sh
 └── logstash-entrypoint.sh
 ```
 
@@ -151,6 +193,10 @@ nzyme_logstash/
 
 - **Environment Variable Errors:**  
   Ensure all required variables are set in `.env` and referenced in `docker-compose.yml`.
+
+- **Password Not Passed Correctly:**  
+  If your password contains `$`, use `$$` in `.env`.  
+  Do **not** source `.env` in your shell before running the script.
 
 - **SSL Certificate Errors:**  
   Make sure the CA certificate is mounted and the path matches in your Logstash config.
