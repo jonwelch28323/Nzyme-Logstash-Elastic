@@ -1,0 +1,126 @@
+{
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "attribute": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "beacon_advertisements": {
+        "type": "long"
+      },
+      "client_mac": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "created_at": {
+        "type": "date"
+      },
+      "data_source": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "event_timestamp": {
+        "type": "date"
+      },
+      "fingerprint": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "frame_type": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "frequency": {
+        "type": "long"
+      },
+      "hidden_ssid_frames": {
+        "type": "long"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "proberesp_advertisements": {
+        "type": "long"
+      },
+      "rx_bytes": {
+        "type": "long"
+      },
+      "rx_frames": {
+        "type": "long"
+      },
+      "signal_strength_average": {
+        "type": "float"
+      },
+      "signal_strength_max": {
+        "type": "long"
+      },
+      "signal_strength_min": {
+        "type": "long"
+      },
+      "source_type": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "ssid": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "ssid_value": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "tx_frames": {
+        "type": "long"
+      }
+    }
+  }
+}

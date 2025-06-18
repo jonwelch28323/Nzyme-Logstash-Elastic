@@ -1,0 +1,200 @@
+{
+  "mappings": {
+    "_data_stream_timestamp": {
+      "enabled": true
+    },
+    "dynamic_templates": [],
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "accuracy_barometer": {
+        "type": "long"
+      },
+      "accuracy_horizontal": {
+        "type": "long"
+      },
+      "accuracy_speed": {
+        "type": "long"
+      },
+      "accuracy_vertical": {
+        "type": "long"
+      },
+      "altitude_geodetic": {
+        "type": "float"
+      },
+      "data_source": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "designation": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "detection_source": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "event_timestamp": {
+        "type": "date"
+      },
+      "first_seen": {
+        "type": "date"
+      },
+      "ground_track": {
+        "type": "long"
+      },
+      "height": {
+        "type": "float"
+      },
+      "height_type": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "id": {
+        "type": "long"
+      },
+      "id_serial": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "identifier": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "last_seen": {
+        "type": "date"
+      },
+      "latest_operator_location_timestamp": {
+        "type": "date"
+      },
+      "latest_vector_timestamp": {
+        "type": "date"
+      },
+      "latitude": {
+        "type": "float"
+      },
+      "longitude": {
+        "type": "float"
+      },
+      "operational_status": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "operator_altitude": {
+        "type": "float"
+      },
+      "operator_latitude": {
+        "type": "float"
+      },
+      "operator_location": {
+        "type": "geo_point",
+        "ignore_malformed": false,
+        "ignore_z_value": true
+      },
+      "operator_location_type": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "operator_longitude": {
+        "type": "float"
+      },
+      "rssi_average": {
+        "type": "float"
+      },
+      "source_type": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "speed": {
+        "type": "float"
+      },
+      "tap_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "tap_uuid": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "uav_latitude": {
+        "type": "float"
+      },
+      "uav_location": {
+        "type": "geo_point",
+        "ignore_malformed": false,
+        "ignore_z_value": true
+      },
+      "uav_longitude": {
+        "type": "float"
+      },
+      "uav_type": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "vertical_speed": {
+        "type": "float"
+      }
+    }
+  }
+}
