@@ -32,6 +32,10 @@ if file .env | grep -q CRLF; then
   sed -i 's/\r$//' .env
 fi
 
+# Source environment variables from .env file
+set -a  # automatically export all variables
+source .env
+set +a  # turn off automatic export
 
 ES_URL="https://${ELASTIC_HOST}:${ELASTIC_PORT}"
 ES_USER="${ELASTIC_USER}"
@@ -119,18 +123,32 @@ delete_nzyme_data() {
 }
 
 test_connections() {
-  echo "Testing connection to Elasticsearch at $ES_URL ..."
+  # Color codes for better visibility
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW='\033[1;33m'
+  BLUE='\033[0;34m'
+  BOLD='\033[1m'
+  NC='\033[0m' # No Color
+
+  echo ""
+  echo -e "${BOLD}================================================================${NC}"
+  echo -e "${BOLD}                    CONNECTION TEST RESULTS                     ${NC}"
+  echo -e "${BOLD}================================================================${NC}"
+  echo ""
+
+  echo -e "${BLUE}Testing connection to Elasticsearch at $ES_URL ...${NC}"
   elastic_output=$(curl $ES_CURL_OPTS -u "$ES_USER:$ES_PASS" -s -w "\n%{http_code}" "$ES_URL")
   elastic_body=$(echo "$elastic_output" | head -n -1)
   elastic_code=$(echo "$elastic_output" | tail -n1)
   if [ "$elastic_code" = "200" ]; then
-    echo "Elasticsearch connection: SUCCESS"
+    echo -e "${GREEN}✓ Elasticsearch connection: SUCCESS${NC}"
   else
-    echo "Elasticsearch connection: FAILED (HTTP $elastic_code)"
-    echo "---- Elasticsearch Response ----"
+    echo -e "${RED}✗ Elasticsearch connection: FAILED (HTTP $elastic_code)${NC}"
+    echo -e "${YELLOW}---- Elasticsearch Response ----${NC}"
     echo "$elastic_body"
-    echo "---- End Response ----"
-    echo "Check:"
+    echo -e "${YELLOW}---- End Response ----${NC}"
+    echo -e "${YELLOW}Check:${NC}"
     echo "- ELASTIC_HOST: $ELASTIC_HOST"
     echo "- ELASTIC_PORT: $ELASTIC_PORT"
     echo "- ELASTIC_USER: $ES_USER"
@@ -138,17 +156,21 @@ test_connections() {
     echo "- SSL certificate (if using self-signed, ensure -k is set or CA is trusted)"
   fi
 
-  echo "Testing connection to PostgreSQL database at ${DATABASE_HOST:-localhost}:${DATABASE_PORT:-5432} ..."
+  echo ""
+  echo -e "${BLUE}Testing connection to PostgreSQL database at ${DATABASE_HOST:-localhost}:${DATABASE_PORT:-5432} ...${NC}"
   if [ "$PSQL_AVAILABLE" -eq 1 ]; then
-    PGPASSWORD="${DATABASE_PASSWORD}" psql_output=$(psql -h "${DATABASE_HOST:-localhost}" -p "${DATABASE_PORT:-5432}" -U "${DATABASE_USER:-postgres}" -d "${DATABASE_NAME:-postgres}" -c '\q' 2>&1)
-    if [ $? -eq 0 ]; then
-      echo "PostgreSQL connection: SUCCESS"
+    export PGPASSWORD="${DATABASE_PASSWORD}"
+    psql_output=$(psql -h "${DATABASE_HOST:-localhost}" -p "${DATABASE_PORT:-5432}" -U "${DATABASE_USER:-postgres}" -d "${DATABASE_NAME:-postgres}" -c '\q' 2>&1)
+    psql_exit_code=$?
+    unset PGPASSWORD
+    if [ $psql_exit_code -eq 0 ]; then
+      echo -e "${GREEN}✓ PostgreSQL connection: SUCCESS${NC}"
     else
-      echo "PostgreSQL connection: FAILED"
-      echo "---- psql Output ----"
+      echo -e "${RED}✗ PostgreSQL connection: FAILED${NC}"
+      echo -e "${YELLOW}---- psql Output ----${NC}"
       echo "$psql_output"
-      echo "---- End Output ----"
-      echo "Check:"
+      echo -e "${YELLOW}---- End Output ----${NC}"
+      echo -e "${YELLOW}Check:${NC}"
       echo "- DATABASE_HOST: ${DATABASE_HOST:-localhost}"
       echo "- DATABASE_PORT: ${DATABASE_PORT:-5432}"
       echo "- DATABASE_USER: ${DATABASE_USER:-postgres}"
@@ -159,8 +181,14 @@ test_connections() {
       echo "- Network connectivity and firewall"
     fi
   else
-    echo "psql command not found. Cannot test PostgreSQL connection."
+    echo -e "${YELLOW}⚠ psql command not found. Cannot test PostgreSQL connection.${NC}"
   fi
+  
+  echo ""
+  echo -e "${BOLD}================================================================${NC}"
+  echo -e "${BOLD}Connection testing complete. Please review the results above.${NC}"
+  echo -e "${BOLD}================================================================${NC}"
+  read -p "Press Enter to continue..."
 }
 
 setup_ilm_templates_datastreams() {
@@ -256,16 +284,22 @@ EOF
 show_help() {
   echo "Nzyme Logstash Management Script"
   echo "--------------------------------"
-  echo "1) Setup/Update ILM, templates, and datastreams"
-  echo "2) Stage Logstash container (pull/create but do not start)"
-  echo "3) Start Logstash container"
-  echo "4) Stop Logstash container"
-  echo "5) Restart Logstash container"
-  echo "6) Delete Logstash container"
+  echo "Setup & Configuration:"
+  echo "1) Test connection to Elasticsearch and PostgreSQL"
+  echo "2) Setup/Update ILM, templates, and datastreams"
+  echo ""
+  echo "Container Management:"
+  echo "3) Stage Logstash container (pull/create but do not start)"
+  echo "4) Start Logstash container"
+  echo "5) Stop Logstash container"
+  echo "6) Restart Logstash container"
   echo "7) Show Logstash container status"
-  echo "8) Delete ALL nzyme data streams and data from Elasticsearch"
-  echo "9) Test connection to Elasticsearch and PostgreSQL"
-  echo "10) Show environment variables inside Logstash container"
+  echo "8) Show environment variables inside Logstash container"
+  echo "9) Delete Logstash container"
+  echo ""
+  echo "Data Management:"
+  echo "10) Delete ALL nzyme data streams and data from Elasticsearch"
+  echo ""
   echo "h) Help"
   echo "0) Exit"
 }
@@ -276,16 +310,16 @@ while true; do
   read -p "Enter your choice: " choice
 
   case "$choice" in
-    1) setup_ilm_templates_datastreams ;;
-    2) manage_container stage ;;
-    3) manage_container start ;;
-    4) manage_container stop ;;
-    5) manage_container restart ;;
-    6) manage_container delete ;;
+    1) test_connections ;;
+    2) setup_ilm_templates_datastreams ;;
+    3) manage_container stage ;;
+    4) manage_container start ;;
+    5) manage_container stop ;;
+    6) manage_container restart ;;
     7) manage_container status ;;
-    8) delete_nzyme_data ;;
-    9) test_connections ;;
-    10) manage_container envtest ;;
+    8) manage_container envtest ;;
+    9) manage_container delete ;;
+    10) delete_nzyme_data ;;
     h|help) show_help ;;
     0) echo "Exiting."; exit 0 ;;
     *) echo "Invalid option." ;;
